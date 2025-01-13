@@ -28,7 +28,7 @@ async def main():
         if sender.bot:
             return  # Ignore bots
 
-        print(f"Received message from {sender.first_name}")
+        print(f"Received {event.message.text} from {sender.first_name}")
         await asyncio.sleep(5)
 
         try:
