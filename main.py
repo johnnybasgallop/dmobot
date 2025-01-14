@@ -49,6 +49,39 @@ affirmations = (
     "word", "bet", "fosho", "fo sho", "for sure", "okey", "okayy"
 )
 
+is_this_dmo_queries = (
+    "is this dmo?", "is this the real dmo?", "is this dmo official?", "are you dmo?", "is this actually dmo?",
+    "is this really dmo?", "is this dmo's account?", "is this dmo's official account?", "is this the official dmo?",
+    "are you the real dmo?", "is this you dmo?", "is this legit dmo?", "is this the legit dmo?",
+    "is this the official page of dmo?", "is this dmo on telegram?", "is this dmo on here?", "is dmo on telegram?",
+    "is dmo on here?", "dmo is this you?", "dmo is that you?", "are you THE dmo?", "is this THE dmo?",
+    "is this the dmo?", "is this the one and only dmo?", "is this the only dmo?", "is this the only official dmo?",
+    "is this the only real dmo?", "is this the real deal dmo?", "is that you dmo?", "is that really you dmo?",
+    "yo is this dmo?", "hey is this dmo?", "hi is this dmo?", "hello is this dmo?", "sup is this dmo?",
+    "wassup is this dmo?", "what's up is this dmo?", "whats up is this dmo?", "is this dmo or a fan page?",
+    "is this dmo or a bot?", "is this a dmo bot?", "is this a dmo impersonator?", "are you a dmo bot?",
+    "are you a bot pretending to be dmo?", "are you impersonating dmo?", "is this a fake dmo account?",
+    "is this a fake dmo?", "is this a dmo scam?", "is this a scam dmo account?", "is this a scammer pretending to be dmo?",
+    "is this a scammer dmo?", "is this dmo's telegram?", "is this dmo's telegram account?", "dmo telegram?",
+    "dmo telegram account?", "official dmo telegram?", "official dmo telegram account?", "real dmo telegram?",
+    "real dmo telegram account?", "legit dmo telegram?", "legit dmo telegram account?", "dmo on telegram?",
+    "dmo on telegram account?", "dmo on this app?", "dmo on here?", "dmo on this platform?", "dmo here?", "who is this", "who dis", "who's this", "who are you"
+)
+
+is_this_a_scam_queries = (
+    "is this a scam?", "is this legit?", "is this real?", "is this genuine?",
+    "is this trustworthy?", "can i trust this?", "can i trust you?", "should i trust this?",
+    "should i trust you?", "is this safe?", "is this secure?", "is this a con?", "is this a fraud?",
+    "is this a hoax?", "is this a rip off?", "is this fishy?", "is this suspicious?",
+    "is this questionable?", "are you scamming me?", "are you trying to scam me?",
+    "are you a scammer?", "is this a scammer?", "is this account a scam?",
+    "is this a fake account?", "is this a fake profile?", "is this a pump and dump?",
+    "is this a rug pull?", "is this a honeypot?", "is this a pyramid scheme?",
+    "is this a ponzi scheme?", "too good to be true?", "is this a get rich quick scheme?",
+    "is this a money making scheme?",
+    "is this a money scheme?"
+)
+
 async def is_first_message(client, chat_id, user_id, message_id):
     """Checks if a message is the first message from a specific user in a chat."""
     try:
@@ -70,6 +103,7 @@ async def is_first_message(client, chat_id, user_id, message_id):
 @client.on(events.NewMessage)
 async def my_event_handler(event):
     sender = await event.get_sender()
+    sender_phone = getattr(sender, "phone", None)
     if sender is None or sender.bot: #check sender exists
         return  # Ignore bots and channel posts
 
@@ -81,6 +115,15 @@ async def my_event_handler(event):
     message_id = event.message.id
     message_text = event.message.text.lower() if event.message.text else ""
      #check if message has text
+    
+    #check if its from the bot/source account
+    print(f"is sender a bot: {sender.bot == True}")
+    print(f"sender number: {sender_phone}")
+    print(f"sender name: {session_name}")
+
+    if sender.bot or sender_phone == "447592515298":
+        return
+    
     print(f"Received message from {sender.first_name}: {message_text}")
 
     try:
@@ -102,11 +145,14 @@ async def my_event_handler(event):
             await asyncio.sleep(1)
             await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
             print(f"Sent image to {sender.first_name}")
-            
 
-        elif message_text == "i want to make money":
-            await client.send_file(chat_id, file=VOICE_NOTE_B_PATH, voice_note=True)
-            print(f"Sent voice note B to {sender.first_name}")
+        elif any(fuzz.ratio(message_text, dmo_query) >= 85 for dmo_query in is_this_dmo_queries):
+            await client.send_file(chat_id, file=IS_THIS_DMO_NOTE, voice_note=True)
+            print(f"Sent this is dmo confirmation voicenote to {sender.first_name}")
+
+        elif any(fuzz.ratio(message_text, scam_query) >= 95 or "scam" in message_text.lower() or "fraud" in message_text.lower() or "scheme" in message_text.lower() for scam_query in is_this_a_scam_queries):
+            await client.send_file(chat_id, file=IS_THIS_SCAM_NOTE, voice_note=True)
+            print(f"Sent this is dmo confirmation voicenote to {sender.first_name}")
 
         else:
             print(f"Unknown message. No voice note sent.")
