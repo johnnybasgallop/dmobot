@@ -3,6 +3,7 @@ import time
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import GetHistoryRequest
 from fuzzywuzzy import fuzz
+from telethon.tl.types import Message
 # Replace with your API credentials, phone number, and session name
 api_id = "24173242"
 api_hash = 'e374a639670673451152516f5278b294'
@@ -130,11 +131,25 @@ async def my_event_handler(event):
         await asyncio.sleep(3)
         await event.mark_read()
 
+        #Checks for first message  
         if await is_first_message(client, chat_id, user_id, message_id):
             print("First message from this user!")
             await asyncio.sleep(2)
             await client.send_file(chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True)
+        
+        #Checks if the user sends an image (likely means they are sending the screenshot that they have signed up)
+        ### Add in  a check here for if the After_signup_to_assistant text is in the history
+        ###Also add in a check for if "its not working or similar phrases are in the history"
+        elif isinstance(event.message, Message) and event.message.media:
+            if event.message.media.photo:
+                print(f"Received likely confirmation image from {sender.first_name}")
+                await asyncio.sleep(3)
+                await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
+                await asyncio.sleep(5)
+                await client.send_message(chat_id, AFTER_SIGN_UP_TO_ASSITANT_TEXT)
 
+        #Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
+        ### May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
         elif any(fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations):
             await asyncio.sleep(2)
             await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_NOTE, voice_note=True)
