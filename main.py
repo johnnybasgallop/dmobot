@@ -4,6 +4,7 @@ from telethon import TelegramClient, events
 from telethon.tl.functions.messages import GetHistoryRequest
 from fuzzywuzzy import fuzz
 from telethon.tl.types import Message
+from datetime import datetime, timedelta
 # Replace with your API credentials, phone number, and session name
 api_id = "24173242"
 api_hash = 'e374a639670673451152516f5278b294'
@@ -83,6 +84,10 @@ is_this_a_scam_queries = (
     "is this a money scheme?"
 )
 
+CHASEUP_DELAY = timedelta(seconds=75)
+user_last_message_times = {}
+users_waiting_for_confirmation = {}
+
 async def is_first_message(client, chat_id, user_id, message_id):
     """Checks if a message is the first message from a specific user in a chat."""
     try:
@@ -130,6 +135,7 @@ async def my_event_handler(event):
     try:
         await asyncio.sleep(3)
         await event.mark_read()
+        user_last_message_times[user_id] = datetime.now()
 
         #Checks for first message  
         if await is_first_message(client, chat_id, user_id, message_id):
@@ -141,13 +147,19 @@ async def my_event_handler(event):
         ### Add in  a check here for if the After_signup_to_assistant text is in the history
         ###Also add in a check for if "its not working or similar phrases are in the history"
         elif isinstance(event.message, Message) and event.message.media:
-            if event.message.media.photo:
-                print(f"Received likely confirmation image from {sender.first_name}")
+            if event.message.media.photo or event.message.media.video:
+
+                if user_id in users_waiting_for_confirmation:
+                    del users_waiting_for_confirmation[user_id]
+
+                print(f"Received image from {sender.first_name} - Confirmation received!")
+                print(f"Received likely confirmation image/video from {sender.first_name}")
+
                 await asyncio.sleep(3)
                 await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
                 await asyncio.sleep(5)
                 await client.send_message(chat_id, AFTER_SIGN_UP_TO_ASSITANT_TEXT)
-
+                return
         #Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
         ### May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
         elif any(fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations):
@@ -160,6 +172,8 @@ async def my_event_handler(event):
             await asyncio.sleep(1)
             await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
             print(f"Sent image to {sender.first_name}")
+            users_waiting_for_confirmation[user_id] = datetime.now()
+            print(f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup")
 
         elif any(fuzz.ratio(message_text, dmo_query) >= 85 for dmo_query in is_this_dmo_queries):
             await client.send_file(chat_id, file=IS_THIS_DMO_NOTE, voice_note=True)
@@ -177,10 +191,31 @@ async def my_event_handler(event):
     except Exception as e:
         print(f"Error sending voice note: {e}")
 
-async def main_function(): #added this so the client is used within a with statement
+async def check_for_chaseups(client):
+    while True:
+        now = datetime.now()
+        users_to_remove = []
+
+        for user_id, start_time in users_waiting_for_confirmation.items():
+            if now - start_time >= CHASEUP_DELAY:
+                try:
+                    chat = await client.get_entity(user_id)
+                    await client.send_file(chat.id, file=CHASEUP_NOTE, voice_note=True)
+                    print(f"Sent chase-up voice note to user ID: {user_id}")
+                    users_to_remove.append(user_id)
+                except Exception as e:
+                    print(f"Error sending chase-up to user ID {user_id}: {e}")
+
+        for user_id in users_to_remove:
+            del users_waiting_for_confirmation[user_id]
+
+        await asyncio.sleep(75)  # Check every hour
+
+async def main_function():
     async with client:
         await client.start(phone)
         print("Client started. Waiting for messages...")
+        asyncio.create_task(check_for_chaseups(client))  # Start chase-up task
         await client.run_until_disconnected()
 
 if __name__ == '__main__':
