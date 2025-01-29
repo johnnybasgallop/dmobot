@@ -1,10 +1,12 @@
 import asyncio
 import time
+from datetime import datetime, timedelta
+
+from fuzzywuzzy import fuzz
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import GetHistoryRequest
-from fuzzywuzzy import fuzz
 from telethon.tl.types import Message
-from datetime import datetime, timedelta
+
 # Replace with your API credentials, phone number, and session name
 api_id = "24173242"
 api_hash = 'e374a639670673451152516f5278b294'
@@ -88,6 +90,7 @@ CHASEUP_DELAY = timedelta(seconds=75)
 user_last_message_times = {}
 users_waiting_for_confirmation = {}
 
+
 async def is_first_message(client, chat_id, user_id, message_id):
     """Checks if a message is the first message from a specific user in a chat."""
     try:
@@ -106,30 +109,31 @@ async def is_first_message(client, chat_id, user_id, message_id):
         print(f"Error checking message history: {e}")
         return False
 
+
 @client.on(events.NewMessage)
 async def my_event_handler(event):
     sender = await event.get_sender()
     sender_phone = getattr(sender, "phone", None)
-    if sender is None or sender.bot: #check sender exists
+    if sender is None or sender.bot:  # check sender exists
         return  # Ignore bots and channel posts
 
     chat = await event.get_chat()
     if chat is None:
-        return #ignore if no chat
+        return  # ignore if no chat
     chat_id = chat.id
     user_id = event.sender_id
     message_id = event.message.id
     message_text = event.message.text.lower() if event.message.text else ""
-     #check if message has text
-    
-    #check if its from the bot/source account
+    # check if message has text
+
+    # check if its from the bot/source account
     print(f"is sender a bot: {sender.bot == True}")
     print(f"sender number: {sender_phone}")
     print(f"sender name: {session_name}")
 
     if sender.bot or sender_phone == "447592515298":
         return
-    
+
     print(f"Received message from {sender.first_name}: {message_text}")
 
     try:
@@ -137,31 +141,36 @@ async def my_event_handler(event):
         await event.mark_read()
         user_last_message_times[user_id] = datetime.now()
 
-        #Checks for first message  
+        # Checks for first message
         if await is_first_message(client, chat_id, user_id, message_id):
             print("First message from this user!")
             await asyncio.sleep(2)
             await client.send_file(chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True)
-        
-        #Checks if the user sends an image (likely means they are sending the screenshot that they have signed up)
-        ### Add in  a check here for if the After_signup_to_assistant text is in the history
-        ###Also add in a check for if "its not working or similar phrases are in the history"
+
+        # Checks if the user sends an image
+        # (likely means they are sending the screenshot that they have signed up)
+        # Add in  a check here for if the After_signup_to_assistant
+        #  text is in the history
+        # Also add in a check for if "its not working or similar
+        #  phrases are in the history"
         elif isinstance(event.message, Message) and event.message.media:
             if event.message.media.photo or event.message.media.video:
 
                 if user_id in users_waiting_for_confirmation:
                     del users_waiting_for_confirmation[user_id]
 
-                print(f"Received image from {sender.first_name} - Confirmation received!")
-                print(f"Received likely confirmation image/video from {sender.first_name}")
+                print(
+                    f"Received image from {sender.first_name} - Confirmation received!")
+                print(
+                    f"Received likely confirmation image/video from {sender.first_name}")
 
                 await asyncio.sleep(3)
                 await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
                 await asyncio.sleep(5)
                 await client.send_message(chat_id, AFTER_SIGN_UP_TO_ASSITANT_TEXT)
                 return
-        #Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
-        ### May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
+        # Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
+        # May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
         elif any(fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations):
             await asyncio.sleep(2)
             await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_NOTE, voice_note=True)
@@ -173,23 +182,27 @@ async def my_event_handler(event):
             await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
             print(f"Sent image to {sender.first_name}")
             users_waiting_for_confirmation[user_id] = datetime.now()
-            print(f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup")
+            print(
+                f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup")
 
         elif any(fuzz.ratio(message_text, dmo_query) >= 85 for dmo_query in is_this_dmo_queries):
             await client.send_file(chat_id, file=IS_THIS_DMO_NOTE, voice_note=True)
-            print(f"Sent this is dmo confirmation voicenote to {sender.first_name}")
+            print(
+                f"Sent this is dmo confirmation voicenote to {sender.first_name}")
 
         elif any(fuzz.ratio(message_text, scam_query) >= 95 or "scam" in message_text.lower() or "fraud" in message_text.lower() or "scheme" in message_text.lower() for scam_query in is_this_a_scam_queries):
             await client.send_file(chat_id, file=IS_THIS_SCAM_NOTE, voice_note=True)
-            print(f"Sent this is dmo confirmation voicenote to {sender.first_name}")
+            print(
+                f"Sent this is dmo confirmation voicenote to {sender.first_name}")
 
         else:
-            print(f"Unknown message. No voice note sent.")
+            print("Unknown message. No voice note sent.")
 
     except FileNotFoundError as e:
         print(f"Error: Audio file not found: {e}")
     except Exception as e:
         print(f"Error sending voice note: {e}")
+
 
 async def check_for_chaseups(client):
     while True:
@@ -210,6 +223,7 @@ async def check_for_chaseups(client):
             del users_waiting_for_confirmation[user_id]
 
         await asyncio.sleep(75)  # Check every hour
+
 
 async def main_function():
     async with client:
