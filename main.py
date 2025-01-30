@@ -72,9 +72,6 @@ async def my_event_handler(event):
     print(f"Received message from {sender.first_name}: {message_text}")
 
     try:
-        await asyncio.sleep(5)
-        await event.mark_read()
-
         # Checks for first message
         if await is_first_message(
             client,
@@ -82,6 +79,8 @@ async def my_event_handler(event):
             user_id,
             message_id,
         ):
+            await asyncio.sleep(5)
+            await event.mark_read()
             print("First message from this user!")
             await asyncio.sleep(30)
             await client.send_file(
