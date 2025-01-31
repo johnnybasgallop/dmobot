@@ -4,27 +4,35 @@ from datetime import datetime, timedelta
 
 from fuzzywuzzy import fuzz
 from telethon import TelegramClient, events
-from telethon.tl.functions.messages import GetHistoryRequest
-from telethon.tl.types import Message
+from telethon.tl.functions.messages import GetHistoryRequest, ReorderPinnedDialogsRequest
+from telethon.tl.types import (
+    InputDialogPeer,
+    InputPeerChat,
+    Message,
+    MessageMediaDocument,
+)
+
+from affirmations import affirmations
 
 # Replace with your API credentials, phone number, and session name
 api_id = "24173242"
-api_hash = 'e374a639670673451152516f5278b294'
-phone = '+447592515298'  # Include country code (e.g., +1 for US)
-session_name = 'my_telegram_session'
+api_hash = "e374a639670673451152516f5278b294"
+phone = "+447592515298"  # Include country code (e.g., +1 for US)
+session_name = "my_telegram_session"
 
-FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/1stVN.ogg"
+FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg.ogg"
 
 CONFIRM_AFTER_FIRST_NOTE = "./voicenotes/AffirmAfter1st.ogg"
-CONFIRM_AFTER_FIRST_NOTE_TEXT1 = """Here is the link to our recommended broker. This is where you will manage your funds! DO NOT USE THE APP, only use the broker online through link below
+CONFIRM_AFTER_FIRST_NOTE_TEXT1 = """CMONN are you 18? you will need MINIMUM £300 to deposit but remember, the bigger deposit the less risk and more profit! is that cool?"""
+BROKER_MESSAGE = """Perfect, here is the link to our recommended broker. This is where you will manage your funds! PLEASE make sure to only use the broker through our link below
 
-https://go.t4trade.com/visit/?bta=37303&brand=t4trade
+https://go.monetamarkets.com/visit/?bta=37949&brand=monetamarkets
 
-You should select: 
-Trading account: Fixed
-Bonus: 100% Supercharged bonus 
-Base: GBP 
-Leverage: 1:500 
+You should select:
+Trading platform: MT4
+Trading account: Direct STP
+Base: GBP/EUR/USD
+Leverage: 1:500
 
 Send me a screenshot of your dashboard once your account is confirmed please (this is the main screen on your trading account)."""
 
@@ -32,59 +40,12 @@ CONFIRM_AFTER_FIRST_NOTE2 = "./voicenotes/AffirmAfter1st-2.ogg"
 CONFIRM_AFTER_FIRST_IMG = "./voicenotes/AffirmAfter1stImg.jpg"
 
 AFTER_SIGN_UP_NOTE = "./voicenotes/AfterSignUp.ogg"
-AFTER_SIGN_UP_TO_ASSITANT_TEXT = """Yes bro it’s Jack here DMO’s assistant, The next step is to deposit your funds so we can get started tonight! £300 minimum; once the funds show on your dashboard send me a screenshot 🔥"""
 
-IS_THIS_DMO_NOTE = "./voicenotes/IsThisDMO.ogg"
-IS_THIS_SCAM_NOTE = "./voicenotes/IsThisAScam.ogg"
 CHASEUP_NOTE = "./voicenotes/ChaseUp.ogg"
 
-VOICE_NOTE_A_PATH = "./vn2.ogg"
-VOICE_NOTE_B_PATH = "./vn3.ogg"
 
 client = TelegramClient(session_name, api_id, api_hash)
 
-affirmations = (
-    "yes", "yep", "yeah", "ye", "yh", "aye", "yup", "uh-huh", "uh huh",
-    "okay", "ok", "alright", "all right", "sure", "certainly", "indeed",
-    "absolutely", "definitely", "agreed", "i agree", "sounds good",
-    "i'm ready", "i am ready", "ready", "let's go", "lets go", "bring it on",
-    "hit me", "go for it", "do it", "proceed", "start", "begin", "commence",
-    "yessir", "yessirrr", "yessirr", "yessss", "yesssss", "ya", "yah",
-    "word", "bet", "fosho", "fo sho", "for sure", "okey", "okayy"
-)
-
-is_this_dmo_queries = (
-    "is this dmo?", "is this the real dmo?", "is this dmo official?", "are you dmo?", "is this actually dmo?",
-    "is this really dmo?", "is this dmo's account?", "is this dmo's official account?", "is this the official dmo?",
-    "are you the real dmo?", "is this you dmo?", "is this legit dmo?", "is this the legit dmo?",
-    "is this the official page of dmo?", "is this dmo on telegram?", "is this dmo on here?", "is dmo on telegram?",
-    "is dmo on here?", "dmo is this you?", "dmo is that you?", "are you THE dmo?", "is this THE dmo?",
-    "is this the dmo?", "is this the one and only dmo?", "is this the only dmo?", "is this the only official dmo?",
-    "is this the only real dmo?", "is this the real deal dmo?", "is that you dmo?", "is that really you dmo?",
-    "yo is this dmo?", "hey is this dmo?", "hi is this dmo?", "hello is this dmo?", "sup is this dmo?",
-    "wassup is this dmo?", "what's up is this dmo?", "whats up is this dmo?", "is this dmo or a fan page?",
-    "is this dmo or a bot?", "is this a dmo bot?", "is this a dmo impersonator?", "are you a dmo bot?",
-    "are you a bot pretending to be dmo?", "are you impersonating dmo?", "is this a fake dmo account?",
-    "is this a fake dmo?", "is this a dmo scam?", "is this a scam dmo account?", "is this a scammer pretending to be dmo?",
-    "is this a scammer dmo?", "is this dmo's telegram?", "is this dmo's telegram account?", "dmo telegram?",
-    "dmo telegram account?", "official dmo telegram?", "official dmo telegram account?", "real dmo telegram?",
-    "real dmo telegram account?", "legit dmo telegram?", "legit dmo telegram account?", "dmo on telegram?",
-    "dmo on telegram account?", "dmo on this app?", "dmo on here?", "dmo on this platform?", "dmo here?", "who is this", "who dis", "who's this", "who are you"
-)
-
-is_this_a_scam_queries = (
-    "is this a scam?", "is this legit?", "is this real?", "is this genuine?",
-    "is this trustworthy?", "can i trust this?", "can i trust you?", "should i trust this?",
-    "should i trust you?", "is this safe?", "is this secure?", "is this a con?", "is this a fraud?",
-    "is this a hoax?", "is this a rip off?", "is this fishy?", "is this suspicious?",
-    "is this questionable?", "are you scamming me?", "are you trying to scam me?",
-    "are you a scammer?", "is this a scammer?", "is this account a scam?",
-    "is this a fake account?", "is this a fake profile?", "is this a pump and dump?",
-    "is this a rug pull?", "is this a honeypot?", "is this a pyramid scheme?",
-    "is this a ponzi scheme?", "too good to be true?", "is this a get rich quick scheme?",
-    "is this a money making scheme?",
-    "is this a money scheme?"
-)
 
 CHASEUP_DELAY = timedelta(seconds=75)
 user_last_message_times = {}
@@ -108,6 +69,86 @@ async def is_first_message(client, chat_id, user_id, message_id):
     except Exception as e:
         print(f"Error checking message history: {e}")
         return False
+
+
+# TODO: write this function to check if the intro VN has been sent and the affirmitive message is for that
+# *Done
+async def is_following_first_vn(client, chat_id, user_id, message_id):
+    try:
+        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
+
+        if not messages:
+            return False
+
+        for message in messages:
+            if message.sender_id != user_id:
+                if message.media:
+                    if isinstance(message.media, MessageMediaDocument):
+                        # Check if it's a document
+                        document = message.media.document
+                        mime_type = document.mime_type
+                        size = document.size
+                        document = message.media.document
+                        mime_type = document.mime_type
+                        size = document.size
+                        # mime_type='audio/ogg', size=62571
+                        if mime_type == "audio/ogg" and size == 62571:
+                            return True
+        return False
+
+    except Exception as e:
+        print(f"Error checking message history: {e}")
+        return False
+
+
+# TODO: write this function to check if the "Are you 18" message has been sent and the affirmitive message is for that
+async def is_following_18_confirmation(client, chat_id, user_id, message_id):
+    try:
+        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
+
+        if not messages:
+            return False
+
+        for message in messages:
+            if message.sender_id != user_id:
+                if message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT1:
+                    print("it is following 18")
+                    return True
+
+        print("not following 18")
+        return False
+
+    except Exception as e:
+        print(f"Error checking message history: {e}")
+        return False
+
+
+# TODO: ensure this works for multiple chats
+# function to pin chats when things go wrong etc.
+# async def pin_chat(client, chat_id, user_id):
+#     try:
+#         print("Attempting to pin chat")
+#         chat = await client.get_entity(chat_id)
+
+#         # Pin the chat using PinDialogRequest
+#         # Get currently pinned chats
+#         dialogs = await client.get_dialogs()
+#         pinned_dialogs = [
+#             InputDialogPeer(dialog.entity) for dialog in dialogs if dialog.pinned
+#         ]
+
+#         # Add the new chat to the pinned list
+#         if InputDialogPeer(chat) not in pinned_dialogs:
+#             pinned_dialogs.insert(0, InputDialogPeer(chat))  # Insert at the top
+
+#         # Reorder the pinned dialogs with the updated list
+#         await client(
+#             ReorderPinnedDialogsRequest(folder_id=1, order=pinned_dialogs)
+#         )  # Set to False to unpin
+
+#     except Exception as e:
+#         print(f"Error checking message history: {e}")
+#         return False
 
 
 @client.on(events.NewMessage)
@@ -145,58 +186,42 @@ async def my_event_handler(event):
         if await is_first_message(client, chat_id, user_id, message_id):
             print("First message from this user!")
             await asyncio.sleep(2)
-            await client.send_file(chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True)
+            await client.send_file(
+                chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True
+            )
 
-        # Checks if the user sends an image
-        # (likely means they are sending the screenshot that they have signed up)
-        # Add in  a check here for if the After_signup_to_assistant
-        #  text is in the history
-        # Also add in a check for if "its not working or similar
-        #  phrases are in the history"
         elif isinstance(event.message, Message) and event.message.media:
             if event.message.media.photo or event.message.media.video:
 
                 if user_id in users_waiting_for_confirmation:
                     del users_waiting_for_confirmation[user_id]
 
+                print(f"Received image from {sender.first_name} - Confirmation received!")
                 print(
-                    f"Received image from {sender.first_name} - Confirmation received!")
-                print(
-                    f"Received likely confirmation image/video from {sender.first_name}")
+                    f"Received likely confirmation image/video from {sender.first_name}"
+                )
 
                 await asyncio.sleep(3)
-                await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
+                # await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
+                # Pin the user
                 await asyncio.sleep(5)
-                await client.send_message(chat_id, AFTER_SIGN_UP_TO_ASSITANT_TEXT)
                 return
         # Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
         # May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
-        elif any(fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations):
-            await asyncio.sleep(2)
-            await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_NOTE, voice_note=True)
-            print(f"Sent voice note A to {sender.first_name}")
+        elif any(
+            fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations
+        ):
             await asyncio.sleep(1)
             await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
-            print(f"Sent text to {sender.first_name}")
-            await asyncio.sleep(1)
-            await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
-            print(f"Sent image to {sender.first_name}")
+            await is_following_first_vn(client, chat_id, user_id, message_id)
+            await is_following_18_confirmation(client, chat_id, user_id, message_id)
             users_waiting_for_confirmation[user_id] = datetime.now()
             print(
-                f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup")
-
-        elif any(fuzz.ratio(message_text, dmo_query) >= 85 for dmo_query in is_this_dmo_queries):
-            await client.send_file(chat_id, file=IS_THIS_DMO_NOTE, voice_note=True)
-            print(
-                f"Sent this is dmo confirmation voicenote to {sender.first_name}")
-
-        elif any(fuzz.ratio(message_text, scam_query) >= 95 or "scam" in message_text.lower() or "fraud" in message_text.lower() or "scheme" in message_text.lower() for scam_query in is_this_a_scam_queries):
-            await client.send_file(chat_id, file=IS_THIS_SCAM_NOTE, voice_note=True)
-            print(
-                f"Sent this is dmo confirmation voicenote to {sender.first_name}")
+                f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup"
+            )
 
         else:
-            print("Unknown message. No voice note sent.")
+            print("unknown command/input")
 
     except FileNotFoundError as e:
         print(f"Error: Audio file not found: {e}")
@@ -232,5 +257,6 @@ async def main_function():
         asyncio.create_task(check_for_chaseups(client))  # Start chase-up task
         await client.run_until_disconnected()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main_function())
