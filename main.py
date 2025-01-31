@@ -71,8 +71,6 @@ async def is_first_message(client, chat_id, user_id, message_id):
         return False
 
 
-# TODO: write this function to check if the intro VN has been sent and the affirmitive message is for that
-# *Done
 async def is_following_first_vn(client, chat_id, user_id, message_id):
     try:
         messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
@@ -101,7 +99,6 @@ async def is_following_first_vn(client, chat_id, user_id, message_id):
         return False
 
 
-# TODO: write this function to check if the "Are you 18" message has been sent and the affirmitive message is for that
 async def is_following_18_confirmation(client, chat_id, user_id, message_id):
     try:
         messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
@@ -123,32 +120,25 @@ async def is_following_18_confirmation(client, chat_id, user_id, message_id):
         return False
 
 
-# TODO: ensure this works for multiple chats
-# function to pin chats when things go wrong etc.
-# async def pin_chat(client, chat_id, user_id):
-#     try:
-#         print("Attempting to pin chat")
-#         chat = await client.get_entity(chat_id)
+async def has_broker_message_been_sent(client, chat_id, user_id, message_id):
+    try:
+        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
 
-#         # Pin the chat using PinDialogRequest
-#         # Get currently pinned chats
-#         dialogs = await client.get_dialogs()
-#         pinned_dialogs = [
-#             InputDialogPeer(dialog.entity) for dialog in dialogs if dialog.pinned
-#         ]
+        if not messages:
+            return False
 
-#         # Add the new chat to the pinned list
-#         if InputDialogPeer(chat) not in pinned_dialogs:
-#             pinned_dialogs.insert(0, InputDialogPeer(chat))  # Insert at the top
+        for message in messages:
+            if message.sender_id != user_id:
+                if message.message == BROKER_MESSAGE:
+                    print("broker message has been sent before")
+                    return True
 
-#         # Reorder the pinned dialogs with the updated list
-#         await client(
-#             ReorderPinnedDialogsRequest(folder_id=1, order=pinned_dialogs)
-#         )  # Set to False to unpin
+        print("broker message has not been sent before")
+        return False
 
-#     except Exception as e:
-#         print(f"Error checking message history: {e}")
-#         return False
+    except Exception as e:
+        print(f"Error checking message history: {e}")
+        return False
 
 
 @client.on(events.NewMessage)
@@ -178,21 +168,21 @@ async def my_event_handler(event):
     print(f"Received message from {sender.first_name}: {message_text}")
 
     try:
-        await asyncio.sleep(3)
-        await event.mark_read()
         user_last_message_times[user_id] = datetime.now()
 
         # Checks for first message
         if await is_first_message(client, chat_id, user_id, message_id):
             print("First message from this user!")
             await asyncio.sleep(2)
+            await event.mark_read()
             await client.send_file(
                 chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True
             )
 
         elif isinstance(event.message, Message) and event.message.media:
             if event.message.media.photo or event.message.media.video:
-
+                await asyncio.sleep(6)
+                await event.mark_read()
                 if user_id in users_waiting_for_confirmation:
                     del users_waiting_for_confirmation[user_id]
 
@@ -202,23 +192,46 @@ async def my_event_handler(event):
                 )
 
                 await asyncio.sleep(3)
-                # await client.send_file(chat_id, file=AFTER_SIGN_UP_NOTE, voice_note=True)
-                # Pin the user
-                await asyncio.sleep(5)
                 return
-        # Checks for affirmations e.g. ('Yes' or "lets go" etc.) and sends voicenotes and texts with signup instructions
-        # May need to add in a check to make sure that the the confirm_after_first_note text isnt in the chat history, so that this only gets sent once.
-        elif any(
-            fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations
+
+        elif (
+            any(
+                fuzz.ratio(message_text, affirmation) >= 80
+                for affirmation in affirmations
+            )
+            or "ready" in message_text
         ):
             await asyncio.sleep(1)
-            await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
-            await is_following_first_vn(client, chat_id, user_id, message_id)
-            await is_following_18_confirmation(client, chat_id, user_id, message_id)
-            users_waiting_for_confirmation[user_id] = datetime.now()
-            print(
-                f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup"
-            )
+
+            if (
+                await is_following_first_vn(client, chat_id, user_id, message_id)
+                and not await is_following_18_confirmation(
+                    client, chat_id, user_id, message_id
+                )
+                and not is_first_message(client, chat_id, user_id, message_id)
+            ):
+                await asyncio.sleep(2)
+                await event.mark_read()
+                await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
+
+            elif (
+                await is_following_18_confirmation(client, chat_id, user_id, message_id)
+                and await is_following_first_vn(client, chat_id, user_id, message_id)
+                and not await has_broker_message_been_sent(
+                    client, chat_id, user_id, message_id
+                )
+            ):
+                await asyncio.sleep(2)
+                await event.mark_read()
+                await client.send_message(chat_id, BROKER_MESSAGE)
+                users_waiting_for_confirmation[user_id] = datetime.now()
+                print(
+                    f"1 hour countdown to chaseup has been started for {sender.first_name} | countdown will end when we receive proof of signup"
+                )
+                await client.send_file(
+                    chat_id, file=CONFIRM_AFTER_FIRST_NOTE2, voice_note=True
+                )
+                await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
 
         else:
             print("unknown command/input")

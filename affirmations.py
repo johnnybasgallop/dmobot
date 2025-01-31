@@ -47,4 +47,5 @@ affirmations = (
     "for sure",
     "okey",
     "okayy",
+    "yo dmo im ready",
 )
