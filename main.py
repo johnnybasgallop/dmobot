@@ -20,7 +20,7 @@ api_hash = "e374a639670673451152516f5278b294"
 phone = "+447592515298"  # Include country code (e.g., +1 for US)
 session_name = "my_telegram_session"
 
-FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg.ogg"
+FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg"
 
 CONFIRM_AFTER_FIRST_NOTE = "./voicenotes/AffirmAfter1st.ogg"
 CONFIRM_AFTER_FIRST_NOTE_TEXT1 = """CMONN are you 18? you will need MINIMUM £300 to deposit but remember, the bigger deposit the less risk and more profit! is that cool?"""
@@ -36,8 +36,8 @@ Leverage: 1:500
 
 Send me a screenshot of your dashboard once your account is confirmed please (this is the main screen on your trading account)."""
 
-CONFIRM_AFTER_FIRST_NOTE2 = "./voicenotes/AffirmAfter1st-2.ogg"
-CONFIRM_AFTER_FIRST_IMG = "./voicenotes/AffirmAfter1stImg.jpg"
+CONFIRM_AFTER_FIRST_NOTE2 = "./voicenotes/ProofVN.ogg"
+CONFIRM_AFTER_FIRST_IMG = "./voicenotes/AffirmAfter_18_confirmation.jpg"
 
 AFTER_SIGN_UP_NOTE = "./voicenotes/AfterSignUp.ogg"
 
@@ -194,12 +194,22 @@ async def my_event_handler(event):
                 await asyncio.sleep(3)
                 return
 
-        elif (
-            any(
-                fuzz.ratio(message_text, affirmation) >= 80
-                for affirmation in affirmations
-            )
-            or "ready" in message_text
+        elif any(
+            fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations
+        ) or any(
+            word in message_text
+            for word in [
+                "yeah",
+                "yes",
+                "ready",
+                "18",
+                "over",
+                "yeh",
+                "yh",
+                "yup",
+                "start",
+                "started",
+            ]
         ):
             await asyncio.sleep(1)
 
@@ -208,7 +218,7 @@ async def my_event_handler(event):
                 and not await is_following_18_confirmation(
                     client, chat_id, user_id, message_id
                 )
-                and not is_first_message(client, chat_id, user_id, message_id)
+                and not await is_first_message(client, chat_id, user_id, message_id)
             ):
                 await asyncio.sleep(2)
                 await event.mark_read()
