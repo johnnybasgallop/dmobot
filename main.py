@@ -14,102 +14,10 @@ from telethon.tl.types import (
 
 from affirmations import affirmations
 from config import *
+from Utilities.ChaseupCheck import *
 from Utilities.Check import *
 
 client = TelegramClient(session_name, api_id, api_hash)
-
-
-user_last_message_times = {}
-users_waiting_for_confirmation = {}
-
-
-async def is_first_message(client, chat_id, user_id, message_id):
-    """Checks if a message is the first message from a specific user in a chat."""
-    try:
-        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
-
-        if not messages:
-            return True
-
-        for message in messages:
-            if message.sender_id == user_id:
-                return False
-
-        return True
-
-    except Exception as e:
-        print(f"Error checking message history: {e}")
-        return False
-
-
-async def is_following_first_vn(client, chat_id, user_id, message_id):
-    try:
-        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
-
-        if not messages:
-            return False
-
-        for message in messages:
-            if message.sender_id != user_id:
-                if message.media:
-                    if isinstance(message.media, MessageMediaDocument):
-                        # Check if it's a document
-                        document = message.media.document
-                        mime_type = document.mime_type
-                        size = document.size
-                        document = message.media.document
-                        mime_type = document.mime_type
-                        size = document.size
-                        # mime_type='audio/ogg', size=62571
-                        if mime_type == "audio/ogg" and size == 62571:
-                            return True
-        return False
-
-    except Exception as e:
-        print(f"Error checking message history: {e}")
-        return False
-
-
-async def is_following_18_confirmation(client, chat_id, user_id, message_id):
-    try:
-        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
-
-        if not messages:
-            return False
-
-        for message in messages:
-            if message.sender_id != user_id:
-                if message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT1:
-                    print("it is following 18")
-                    return True
-
-        print("not following 18")
-        return False
-
-    except Exception as e:
-        print(f"Error checking message history: {e}")
-        return False
-
-
-async def has_broker_message_been_sent(client, chat_id, user_id, message_id):
-    try:
-        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
-
-        if not messages:
-            return False
-
-        for message in messages:
-            if message.sender_id != user_id:
-                if message.message == BROKER_MESSAGE:
-                    print("broker message has been sent before")
-                    return True
-
-        print("broker message has not been sent before")
-        return False
-
-    except Exception as e:
-        print(f"Error checking message history: {e}")
-        return False
 
 
 @client.on(events.NewMessage)
@@ -126,14 +34,8 @@ async def my_event_handler(event):
     user_id = event.sender_id
     message_id = event.message.id
     message_text = event.message.text.lower() if event.message.text else ""
-    # check if message has text
 
-    # check if its from the bot/source account
-    print(f"is sender a bot: {sender.bot == True}")
-    print(f"sender number: {sender_phone}")
-    print(f"sender name: {session_name}")
-
-    if sender.bot or sender_phone == "447592515298":
+    if sender.bot or sender_phone == f"44{phone}":
         return
 
     print(f"Received message from {sender.first_name}: {message_text}")
@@ -142,7 +44,7 @@ async def my_event_handler(event):
         user_last_message_times[user_id] = datetime.now()
 
         result = await check_message_history(client, chat_id, user_id, message_id)
-
+        print(f"result: {result}")
         if result == MessageCheckResult.IS_FIRST_MESSAGE:
             print("This is the first message from the user.")
             await asyncio.sleep(2)
@@ -216,30 +118,9 @@ async def my_event_handler(event):
         print(f"Error sending voice note: {e}")
 
 
-async def check_for_chaseups(client):
-    while True:
-        now = datetime.now()
-        users_to_remove = []
-
-        for user_id, start_time in users_waiting_for_confirmation.items():
-            if now - start_time >= CHASEUP_DELAY:
-                try:
-                    chat = await client.get_entity(user_id)
-                    await client.send_file(chat.id, file=CHASEUP_NOTE, voice_note=True)
-                    print(f"Sent chase-up voice note to user ID: {user_id}")
-                    users_to_remove.append(user_id)
-                except Exception as e:
-                    print(f"Error sending chase-up to user ID {user_id}: {e}")
-
-        for user_id in users_to_remove:
-            del users_waiting_for_confirmation[user_id]
-
-        await asyncio.sleep(75)
-
-
 async def main_function():
     async with client:
-        await client.start(phone)
+        await client.start(f"{phone_extension}{phone}")
         print("Client started. Waiting for messages...")
         asyncio.create_task(check_for_chaseups(client))  # Start chase-up task
         await client.run_until_disconnected()

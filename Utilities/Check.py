@@ -52,9 +52,9 @@ async def check_message_history(client, chat_id, user_id, message_id):
 
         if first_message_from_user:
             return MessageCheckResult.IS_FIRST_MESSAGE
-        elif found_first_vn:
+        elif found_first_vn and not found_18_confirmation:
             return MessageCheckResult.FOLLOWS_FIRST_VN
-        elif found_18_confirmation:
+        elif found_first_vn and found_18_confirmation:
             return MessageCheckResult.FOLLOWS_18_CONFIRMATION
         else:
             return MessageCheckResult.NONE
@@ -62,3 +62,24 @@ async def check_message_history(client, chat_id, user_id, message_id):
     except Exception as e:
         print(f"Error checking message history: {e}")
         return MessageCheckResult.NONE
+
+
+async def has_broker_message_been_sent(client, chat_id, user_id, message_id):
+    try:
+        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
+
+        if not messages:
+            return False
+
+        for message in messages:
+            if message.sender_id != user_id:
+                if message.message == BROKER_MESSAGE:
+                    print("broker message has been sent before")
+                    return True
+
+        print("broker message has not been sent before")
+        return False
+
+    except Exception as e:
+        print(f"Error checking message history: {e}")
+        return False
