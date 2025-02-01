@@ -2,6 +2,8 @@ from enum import Enum
 
 from telethon.types import MessageMediaDocument
 
+from config import *
+
 
 class MessageCheckResult(Enum):
     IS_FIRST_MESSAGE = 1
