@@ -25,11 +25,14 @@ LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
 
 # Configure the logger
 logger = logging.getLogger("telegram_bot")
-logger.setLevel(logging.DEBUG)  # Set the logger's level to DEBUG
+logger.setLevel(logging.INFO)  # Set the logger's level to DEBUG
 
 # Configure Logtail handler to capture ERROR and above
 if LOGTAIL_TOKEN:
-    logtail_handler = LogtailHandler(source_token=LOGTAIL_TOKEN)
+    logtail_handler = LogtailHandler(
+        source_token=LOGTAIL_TOKEN,
+        host="https://in.logs.betterstack.com",
+    )
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logtail_handler.setFormatter(formatter)
     logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
