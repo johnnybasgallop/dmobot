@@ -31,4 +31,4 @@ AFTER_SIGN_UP_NOTE = "./voicenotes/AfterSignUp.ogg"
 
 CHASEUP_NOTE = "./voicenotes/ChaseUp.ogg"
 
-CHASEUP_DELAY = timedelta(seconds=75)
+CHASEUP_DELAY = timedelta(seconds=1800)
