@@ -64,7 +64,7 @@ async def my_event_handler(event):
     user_id = event.sender_id
     message_id = event.message.id
     message_text = event.message.text.lower() if event.message.text else ""
-
+    # checks if sender is the bot
     if sender.bot or sender_phone == f"44{phone}":
         return
 
@@ -168,7 +168,7 @@ async def my_event_handler(event):
 async def main_function():
     async with client:
         await client.start(f"{phone_extension}{phone}")
-        logger.info("Client started. Waiting for messages...")
+        logger.info(f"Client started. {phone_extension}{phone} Waiting for messages...")
         asyncio.create_task(check_for_chaseups(client))  # Start chase-up task
         await client.run_until_disconnected()
 
