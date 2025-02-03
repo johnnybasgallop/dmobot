@@ -87,24 +87,28 @@ async def my_event_handler(event):
             )
             logger.info(f"Sent @ {sender_username} the first voicenote")
 
-        elif any(
-            fuzz.ratio(message_text, affirmation) >= 80 for affirmation in affirmations
-        ) or any(
-            word in message_text
-            for word in [
-                "yeah",
-                "yes",
-                "ready",
-                "18",
-                "over",
-                "yeh",
-                "yh",
-                "yup",
-                "start",
-                "started",
-                "okay",
-                "on it" "im down",
-            ]
+        elif (
+            any(
+                fuzz.ratio(message_text, affirmation) >= 80
+                for affirmation in affirmations
+            )
+            or any(
+                word in message_text
+                for word in [
+                    "yeah",
+                    "yes",
+                    "ready",
+                    "18",
+                    "over",
+                    "yeh",
+                    "yh",
+                    "yup",
+                    "start",
+                    "started",
+                    "okay",
+                    "on it" "im down",
+                ]
+            )
             and not any(
                 fuzz.partial_ratio(message_text, phrase) >= 85
                 for phrase in no_money_phrases
