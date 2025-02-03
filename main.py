@@ -133,6 +133,9 @@ async def my_event_handler(event):
                 and not await has_broker_message_been_sent(
                     client, chat_id, user_id, message_id
                 )
+                and not await has_cmon_message_been_sent(
+                    client, chat_id, user_id, message_id
+                )
             ):
                 logger.info(
                     f"Received Likely Second Affirmation message: {message_text} following first VN from @ {sender_username}"
