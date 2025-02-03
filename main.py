@@ -98,7 +98,6 @@ async def my_event_handler(event):
                     "yeah",
                     "yes",
                     "ready",
-                    "18",
                     "over",
                     "yeh",
                     "yh",
@@ -106,7 +105,17 @@ async def my_event_handler(event):
                     "start",
                     "started",
                     "okay",
-                    "on it" "im down",
+                    "on it",
+                    "im down",
+                    "no probs",
+                    "yeah calm",
+                    "calm",
+                    "sn",
+                    "snm",
+                    "fine",
+                    "ok",
+                    "thats fine",
+                    "sound",
                 ]
             )
             and not any(

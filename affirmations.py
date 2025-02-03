@@ -34,6 +34,8 @@ affirmations = (
     "begin",
     "commence",
     "yessir",
+    "cool",
+    "no probs",
     "yessirrr",
     "yessirr",
     "yessss",
@@ -48,4 +50,6 @@ affirmations = (
     "okey",
     "okayy",
     "yo dmo im ready",
+    "cmon",
+    "cmonn",
 )
