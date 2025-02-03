@@ -4,6 +4,7 @@ no_money_phrases = [
     "not got",
     "cant afford",
     "can't",
+    "cannot",
     "too expensive",
     "too much",
     "broke",
@@ -83,4 +84,5 @@ no_money_phrases = [
     "i have no spare cash",
     "i dont have any spare cash",
     "i do not have any spare cash",
+    "sadly",
 ]
