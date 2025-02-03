@@ -72,7 +72,9 @@ async def my_event_handler(event):
 
         result = await check_message_history(client, chat_id, user_id, message_id)
         if result == MessageCheckResult.IS_FIRST_MESSAGE:
-            logger.info(f"Received fist message from {user_id} @ {sender_phone}")
+            logger.info(
+                f"Received fist message {message_text} from {sender} @ userid:{user_id}"
+            )
             await asyncio.sleep(2)
             await event.mark_read()
             logger.info(f"Sending {session_name} @ {sender_phone} the first voicenote")
