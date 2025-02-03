@@ -1,10 +1,11 @@
 # Replace with your API credentials, phone number, and session name
+import os
 from datetime import datetime, timedelta
 
-api_id = "24173242"
-api_hash = "e374a639670673451152516f5278b294"
-phone = "7592515298"  # Include country code (e.g., +1 for US)
-phone_extension = "+44"
+api_id = os.environ.get("APP_ID")
+api_hash = os.environ.get("API_HASH")
+phone = os.environ.get("PHONE")
+phone_extension = os.environ.get("PHONE_EXTENSION")
 session_name = "my_telegram_session"
 
 FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg"
