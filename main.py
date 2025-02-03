@@ -122,6 +122,10 @@ async def my_event_handler(event):
                 fuzz.partial_ratio(message_text, phrase) >= 85
                 for phrase in no_money_phrases
             )
+            and not any(
+                denial in message_text
+                for denial in ["11", "12", "13", "14", "15", "16", "17"]
+            )
         ):
 
             if result == MessageCheckResult.FOLLOWS_FIRST_VN:

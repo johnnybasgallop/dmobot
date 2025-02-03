@@ -4,7 +4,6 @@ no_money_phrases = [
     "not got",
     "cant afford",
     "can't",
-    "no",
     "too expensive",
     "too much",
     "broke",
