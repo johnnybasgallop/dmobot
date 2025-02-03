@@ -1,7 +1,9 @@
 # Replace with your API credentials, phone number, and session name
+from datetime import datetime, timedelta
+
 api_id = "24173242"
 api_hash = "e374a639670673451152516f5278b294"
-phone = "+447592515298"  # Include country code (e.g., +1 for US)
+phone = "+447453904944"  # Include country code (e.g., +1 for US)
 session_name = "my_telegram_session"
 
 FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg"
