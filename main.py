@@ -17,6 +17,7 @@ from telethon.tl.types import (
 
 from affirmations import affirmations
 from config import *
+from denials import *
 from Utilities.ChaseupCheck import *
 from Utilities.Check import *
 
@@ -104,6 +105,10 @@ async def my_event_handler(event):
                 "okay",
                 "on it" "im down",
             ]
+            and not any(
+                fuzz.partial_ratio(message_text, phrase) >= 85
+                for phrase in no_money_phrases
+            )
         ):
 
             if result == MessageCheckResult.FOLLOWS_FIRST_VN:
@@ -163,6 +168,13 @@ async def my_event_handler(event):
 
                 await asyncio.sleep(3)
                 return
+
+        elif any(
+            fuzz.partial_ratio(message_text, phrase) >= 85 for phrase in no_money_phrases
+        ):
+            logger.info(
+                f"input {message_text} from @ {sender_username} suggests too little money to continue or does not want to"
+            )
 
         else:
             logger.info(f"unknown command/input {message_text} from @ {sender_username}")
