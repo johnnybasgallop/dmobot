@@ -104,7 +104,7 @@ async def my_event_handler(event):
 
             if result == MessageCheckResult.FOLLOWS_FIRST_VN:
                 logger.info(
-                    f"Received Likely Second Affirmation message: {message_text} following first VN from @ {sender_phone}"
+                    f"Received Likely Second Affirmation message: {message_text} following first VN from @ {sender_username}"
                 )
                 await asyncio.sleep(2)
                 await event.mark_read()
@@ -118,7 +118,7 @@ async def my_event_handler(event):
                 )
             ):
                 logger.info(
-                    f"Received likely confirmation: {message_text} after 2nd follow up message from @ {sender_phone}"
+                    f"Received likely confirmation: {message_text} after 2nd follow up message from @ {sender_username}"
                 )
                 await asyncio.sleep(2)
                 await event.mark_read()
