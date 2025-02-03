@@ -32,4 +32,4 @@ async def check_for_chaseups(client):
             )
             del users_waiting_for_confirmation[user_id]
 
-        await asyncio.sleep(75)
+        await asyncio.sleep(1800)
