@@ -25,6 +25,7 @@ affirmations = (
     "ready",
     "let's go",
     "lets go",
+    "lets goooo",
     "bring it on",
     "hit me",
     "go for it",

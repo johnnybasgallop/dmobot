@@ -128,7 +128,12 @@ async def my_event_handler(event):
             )
         ):
 
-            if result == MessageCheckResult.FOLLOWS_FIRST_VN:
+            if (
+                result == MessageCheckResult.FOLLOWS_FIRST_VN
+                and not await has_broker_message_been_sent(
+                    client, chat_id, user_id, message_id
+                )
+            ):
                 logger.info(
                     f"Received Likely Second Affirmation message: {message_text} following first VN from @ {sender_username}"
                 )
