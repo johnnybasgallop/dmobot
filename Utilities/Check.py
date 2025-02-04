@@ -1,8 +1,16 @@
 from enum import Enum
 
+from fuzzywuzzy import fuzz
 from telethon.types import MessageMediaDocument
 
 from config import *
+
+CONFIRM_TEXTS = {
+    CONFIRM_AFTER_FIRST_NOTE_TEXT1.lower(),
+    CONFIRM_AFTER_FIRST_NOTE_TEXT2.lower(),
+    CONFIRM_AFTER_FIRST_NOTE_TEXT3.lower(),
+    CONFIRM_AFTER_FIRST_NOTE_TEXT4.lower(),
+}
 
 
 class MessageCheckResult(Enum):
@@ -95,9 +103,14 @@ async def has_cmon_message_been_sent(client, chat_id, user_id, message_id):
         for message in messages:
             if message.sender_id != user_id:
                 if (
-                    message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT1
-                    or message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT2
-                    or message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT3
+                    message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT1.lower()
+                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT2.lower()
+                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT3.lower()
+                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT4.lower()
+                    or any(
+                        fuzz.partial_ratio(message.message.lower(), phrase) >= 80
+                        for phrase in CONFIRM_TEXTS
+                    )
                 ):
                     print("cmon message has been sent before")
                     return True

@@ -172,12 +172,12 @@ async def my_event_handler(event):
                     f"1 hour countdown to chaseup has been started for {sender.first_name} @ {sender_username} | countdown will end when we receive proof of signup"
                 )
                 logger.info(f"Sending @ {sender_username} the proof voicenote")
-                asyncio.sleep(8)
+                await asyncio.sleep(8)
                 await client.send_file(
                     chat_id, file=CONFIRM_AFTER_FIRST_NOTE2, voice_note=True
                 )
                 logger.info(f"Sent @ {sender_username} the proof voicenote")
-                asyncio.sleep(8)
+                await asyncio.sleep(8)
                 logger.info(f"Sending @ {sender_username} the proof image")
                 await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
                 logger.info(f"Sent @ {sender_username} the proof image")
