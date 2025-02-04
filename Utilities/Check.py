@@ -96,8 +96,8 @@ async def has_cmon_message_been_sent(client, chat_id, user_id, message_id):
             if message.sender_id != user_id:
                 if (
                     message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT1
-                    or CONFIRM_AFTER_FIRST_NOTE_TEXT2
-                    or CONFIRM_AFTER_FIRST_NOTE_TEXT3
+                    or message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT2
+                    or message.message == CONFIRM_AFTER_FIRST_NOTE_TEXT3
                 ):
                     print("cmon message has been sent before")
                     return True
