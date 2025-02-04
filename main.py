@@ -69,6 +69,11 @@ async def my_event_handler(event):
     if sender.bot or sender_phone == f"44{phone}":
         return
 
+    if any(
+        word in message_text.lower() for word in ["gold", "platinum", "gol", "platinu"]
+    ):
+        return
+
     try:
         user_last_message_times[user_id] = datetime.now()
 
