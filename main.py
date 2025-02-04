@@ -188,7 +188,6 @@ async def my_event_handler(event):
                     f"Received an image or video from @ {sender_username} Assuming this is a confirmation"
                 )
                 await asyncio.sleep(6)
-                await event.mark_read()
                 if user_id in users_waiting_for_confirmation:
                     logger.info(f"Removing user @ {sender_username} from followup list")
                     del users_waiting_for_confirmation[user_id]
