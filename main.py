@@ -47,6 +47,12 @@ logger.setLevel(logging.INFO)  # Set the logger's level to DEBUG
 # console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
 # logger.addHandler(console_handler)
 
+api_id = "24173242"
+api_hash = "e374a639670673451152516f5278b294"
+phone = "7592515298"
+phone_extension = "+44"
+session_name = "my_telegram_session"
+
 client = TelegramClient(session_name, api_id, api_hash)
 
 

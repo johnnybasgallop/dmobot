@@ -8,11 +8,6 @@ from datetime import datetime, timedelta
 # phone_extension = os.environ.get("PHONE_EXTENSION")
 # session_name = "my_telegram_session"
 
-api_id = 24173242
-api_hash = "e374a639670673451152516f5278b294"
-phone = "7592515298"
-phone_extension = "+44"
-session_name = "my_telegram_session"
 
 FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg"
 
