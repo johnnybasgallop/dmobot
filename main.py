@@ -22,30 +22,30 @@ from Utilities.ChaseupCheck import *
 from Utilities.Check import *
 
 # Get the Logtail Source Token from the environment variable
-LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
+# LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
 
 # Configure the logger
 logger = logging.getLogger("telegram_bot")
 logger.setLevel(logging.INFO)  # Set the logger's level to DEBUG
 
 # Configure Logtail handler to capture ERROR and above
-if LOGTAIL_TOKEN:
-    logtail_handler = LogtailHandler(
-        source_token=LOGTAIL_TOKEN,
-        host="https://in.logs.betterstack.com",
-    )
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    logtail_handler.setFormatter(formatter)
-    logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
-    logger.addHandler(logtail_handler)
+# if LOGTAIL_TOKEN:
+#     logtail_handler = LogtailHandler(
+#         source_token=LOGTAIL_TOKEN,
+#         host="https://in.logs.betterstack.com",
+#     )
+#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+#     logtail_handler.setFormatter(formatter)
+#     logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
+#     logger.addHandler(logtail_handler)
 
-# Configure StreamHandler to capture INFO and above
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-)
-console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
-logger.addHandler(console_handler)
+# # Configure StreamHandler to capture INFO and above
+# console_handler = logging.StreamHandler()
+# console_handler.setFormatter(
+#     logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# )
+# console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
+# logger.addHandler(console_handler)
 
 client = TelegramClient(session_name, api_id, api_hash)
 
@@ -54,9 +54,8 @@ client = TelegramClient(session_name, api_id, api_hash)
 async def my_event_handler(event):
     sender = await event.get_sender()
     sender_phone = getattr(sender, "phone", None)
-    sender_username = getattr(sender, "username", None)
-    if sender is None or sender.bot:  # check sender exists
-        return  # Ignore bots and channel posts
+    if sender is None or sender.bot:
+        return
 
     chat = await event.get_chat()
     if chat is None:

@@ -2,10 +2,16 @@
 import os
 from datetime import datetime, timedelta
 
-api_id = os.environ.get("APP_ID")
-api_hash = os.environ.get("API_HASH")
-phone = os.environ.get("PHONE")
-phone_extension = os.environ.get("PHONE_EXTENSION")
+# api_id = os.environ.get("APP_ID")
+# api_hash = os.environ.get("API_HASH")
+# phone = os.environ.get("PHONE")
+# phone_extension = os.environ.get("PHONE_EXTENSION")
+# session_name = "my_telegram_session"
+
+api_id = 24173242
+api_hash = "e374a639670673451152516f5278b294"
+phone = "7592515298"
+phone_extension = "+44"
 session_name = "my_telegram_session"
 
 FIRST_MESSAGE_VOICE_NOTE = "./voicenotes/vn1.ogg"
