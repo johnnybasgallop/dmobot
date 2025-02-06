@@ -32,8 +32,6 @@ Send me a screenshot of your dashboard once your account is confirmed please (th
 CONFIRM_AFTER_FIRST_NOTE2 = "./voicenotes/ProofVN.ogg"
 CONFIRM_AFTER_FIRST_IMG = "./voicenotes/AffirmAfter_18_confirmation.jpg"
 
-AFTER_SIGN_UP_NOTE = "./voicenotes/AfterSignUp.ogg"
-
 CHASEUP_NOTE = "./voicenotes/ChaseUp.ogg"
 
 CHASEUP_DELAY = timedelta(seconds=1800)
