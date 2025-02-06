@@ -69,9 +69,7 @@ async def my_event_handler(event):
     if sender.bot or sender_phone == f"44{phone}":
         return
 
-    if any(
-        word in message_text.lower() for word in ["gold", "platinum", "gol", "platinu"]
-    ):
+    if any(word in message_text.lower() for word in ["gold", "platinum", "vip"]):
         return
 
     try:
@@ -80,17 +78,15 @@ async def my_event_handler(event):
         result = await check_message_history(client, chat_id, user_id, message_id)
 
         if result == MessageCheckResult.IS_FIRST_MESSAGE:
-            logger.info(
-                f"Received fist message {message_text} from {sender_username} @ userid:{user_id}"
-            )
+            logger.info(f"Received first message {message_text} from @ userid:{user_id}")
             await asyncio.sleep(8)
             await event.mark_read()
             await asyncio.sleep(40)
-            logger.info(f"Sending @ {sender_username} the first voicenote")
+            logger.info(f"Sending @ {user_id} the first voicenote")
             await client.send_file(
                 chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True
             )
-            logger.info(f"Sent @ {sender_username} the first voicenote")
+            logger.info(f"Sent @ {user_id} the first voicenote")
 
         elif (
             any(
@@ -143,14 +139,14 @@ async def my_event_handler(event):
                 )
             ):
                 logger.info(
-                    f"Received Likely Second Affirmation message: {message_text} following first VN from @ {sender_username}"
+                    f"Received Likely Second Affirmation message: {message_text} following first VN from @ {user_id}"
                 )
                 await asyncio.sleep(6)
                 await event.mark_read()
                 await asyncio.sleep(35)
-                logger.info(f"Sending @ {sender_username} the follow up text")
+                logger.info(f"Sending @ {user_id} the follow up text")
                 await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
-                logger.info(f"Sent @ {sender_username} the follow up text")
+                logger.info(f"Sent @ {user_id} the follow up text")
             elif (
                 result == MessageCheckResult.FOLLOWS_18_CONFIRMATION
                 and not await has_broker_message_been_sent(
@@ -158,41 +154,41 @@ async def my_event_handler(event):
                 )
             ):
                 logger.info(
-                    f"Received likely confirmation: {message_text} after 2nd follow up message from @ {sender_username}"
+                    f"Received likely confirmation: {message_text} after 2nd follow up message from @ {user_id}"
                 )
                 await asyncio.sleep(9)
                 await event.mark_read()
                 await asyncio.sleep(45)
-                logger.info(f"Sending @ {sender_username} the broker message")
+                logger.info(f"Sending @ {user_id} the broker message")
                 await client.send_message(chat_id, BROKER_MESSAGE)
-                logger.info(f"Sent @ {sender_username} the broker message")
-                logger.info(f"Adding @ {sender_username} to the chaseup countdown")
+                logger.info(f"Sent @ {user_id} the broker message")
+                logger.info(f"Adding @ {user_id} to the chaseup countdown")
                 users_waiting_for_confirmation[user_id] = datetime.now()
                 logger.info(
-                    f"1 hour countdown to chaseup has been started for {sender.first_name} @ {sender_username} | countdown will end when we receive proof of signup"
+                    f"1 hour countdown to chaseup has been started for {sender.first_name} @ {user_id} | countdown will end when we receive proof of signup"
                 )
-                logger.info(f"Sending @ {sender_username} the proof voicenote")
+                logger.info(f"Sending @ {user_id} the proof voicenote")
                 await asyncio.sleep(8)
                 await client.send_file(
                     chat_id, file=CONFIRM_AFTER_FIRST_NOTE2, voice_note=True
                 )
-                logger.info(f"Sent @ {sender_username} the proof voicenote")
+                logger.info(f"Sent @ {user_id} the proof voicenote")
                 await asyncio.sleep(8)
-                logger.info(f"Sending @ {sender_username} the proof image")
+                logger.info(f"Sending @ {user_id} the proof image")
                 await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
-                logger.info(f"Sent @ {sender_username} the proof image")
+                logger.info(f"Sent @ {user_id} the proof image")
 
         elif isinstance(event.message, Message) and event.message.media:
             if event.message.media.photo or event.message.media.video:
                 logger.info(
-                    f"Received an image or video from @ {sender_username} Assuming this is a confirmation"
+                    f"Received an image or video from @ {user_id} Assuming this is a confirmation"
                 )
                 await asyncio.sleep(6)
                 if user_id in users_waiting_for_confirmation:
-                    logger.info(f"Removing user @ {sender_username} from followup list")
+                    logger.info(f"Removing user @ {user_id} from followup list")
                     del users_waiting_for_confirmation[user_id]
                     logger.info(
-                        f"User @ {sender_username} Has been removed from the followup list"
+                        f"User @ {user_id} Has been removed from the followup list"
                     )
 
                 await asyncio.sleep(3)
@@ -202,11 +198,11 @@ async def my_event_handler(event):
             fuzz.partial_ratio(message_text, phrase) >= 85 for phrase in no_money_phrases
         ):
             logger.info(
-                f"input {message_text} from @ {sender_username} suggests too little money to continue or does not want to"
+                f"input {message_text} from @ {user_id} suggests too little money to continue or does not want to"
             )
 
         else:
-            logger.info(f"unknown command/input {message_text} from @ {sender_username}")
+            logger.info(f"unknown command/input {message_text} from @ {user_id}")
 
     except FileNotFoundError as e:
         logger.error(f"Error: Audio file not found: {e}", exc_info=True)
