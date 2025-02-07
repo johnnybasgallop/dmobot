@@ -133,14 +133,9 @@ async def has_cmon_message_been_sent(client, chat_id, user_id, message_id):
 
         for message in messages:
             if message.sender_id != user_id:
-                if (
-                    message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT1.lower()
-                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT2.lower()
-                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT3.lower()
-                    or message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT4.lower()
-                ):
+                if message.message.lower() == CONFIRM_AFTER_FIRST_NOTE_TEXT1.lower():
                     logger.info(
-                        f"found a cmonn message in the chat with @{user_id}, will not send again"
+                        f"found the bots cmonn message in the chat with @{user_id}, will not send again"
                     )
                     return True
 
