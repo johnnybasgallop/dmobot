@@ -1,8 +1,10 @@
 import asyncio
+import logging
 from datetime import datetime, timedelta
 
 from config import *
-from main import logger
+
+logger = logging.getLogger("telegram_bot")
 
 user_last_message_times = {}
 users_waiting_for_confirmation = {}

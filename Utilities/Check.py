@@ -1,10 +1,10 @@
+import logging
 from enum import Enum
 
 from fuzzywuzzy import fuzz
 from telethon.types import MessageMediaDocument
 
 from config import *
-from main import logger
 
 CONFIRM_TEXTS = {
     CONFIRM_AFTER_FIRST_NOTE_TEXT1.lower(),
@@ -12,6 +12,9 @@ CONFIRM_TEXTS = {
     CONFIRM_AFTER_FIRST_NOTE_TEXT3.lower(),
     CONFIRM_AFTER_FIRST_NOTE_TEXT4.lower(),
 }
+
+
+logger = logging.getLogger("telegram_bot")
 
 
 class MessageCheckResult(Enum):
