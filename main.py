@@ -23,37 +23,33 @@ from Utilities.ChaseupCheck import *
 from Utilities.Check import *
 
 # Get the Logtail Source Token from the environment variable
-# LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
+LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
 
 # Configure the logger
 logger = logging.getLogger("telegram_bot")
 logger.setLevel(logging.INFO)  # Set the logger's level to DEBUG
 
 # Configure Logtail handler to capture ERROR and above
-# if LOGTAIL_TOKEN:
-#     logtail_handler = LogtailHandler(
-#         source_token=LOGTAIL_TOKEN,
-#         host="https://in.logs.betterstack.com",
-#     )
-#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-#     logtail_handler.setFormatter(formatter)
-#     logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
-#     logger.addHandler(logtail_handler)
+if LOGTAIL_TOKEN:
+    logtail_handler = LogtailHandler(
+        source_token=LOGTAIL_TOKEN,
+        host="https://in.logs.betterstack.com",
+    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logtail_handler.setFormatter(formatter)
+    logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
+    logger.addHandler(logtail_handler)
 
-# # Configure StreamHandler to capture INFO and above
-# console_handler = logging.StreamHandler()
-# console_handler.setFormatter(
-#     logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-# )
-# console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
-# logger.addHandler(console_handler)
+# Configure StreamHandler to capture INFO and above
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
+console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
+logger.addHandler(console_handler)
 
-api_id = "24173242"
-api_hash = "e374a639670673451152516f5278b294"
-phone = "7592515298"
-phone_extension = "+44"
 
-client = TelegramClient(None, api_id, api_hash)
+client = TelegramClient(session_name, api_id, api_hash)
 
 
 @client.on(events.NewMessage)
@@ -69,8 +65,6 @@ async def my_event_handler(event):
     message_id = event.message.id
     message_text = event.message.text.lower() if event.message.text else ""
     # checks if sender is the bot
-
-    print(f"message sent from: {user_id}")
 
     if await check_for_manual_intervention(client=client, chat_id=chat_id):
         return
@@ -225,7 +219,7 @@ async def my_event_handler(event):
 async def main_function():
     async with client:
         await client.start(f"{phone_extension}{phone}")
-        print(f"Client started. {phone_extension}{phone} Waiting for messages...")
+        logger.info(f"Client started. {phone_extension}{phone} Waiting for messages...")
         asyncio.create_task(check_for_chaseups(client))  # Start chase-up task
         await client.run_until_disconnected()
 
