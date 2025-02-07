@@ -86,7 +86,10 @@ async def my_event_handler(event):
 
         result = await check_message_history(client, chat_id, user_id, message_id)
 
-        if result == MessageCheckResult.IS_FIRST_MESSAGE:
+        if (
+            result == MessageCheckResult.IS_FIRST_MESSAGE
+            and not await has_first_vn_been_sent(client, chat_id, user_id, message_id)
+        ):
             logger.info(f"Received first message {message_text} from @ userid:{user_id}")
             await asyncio.sleep(2)
             await event.mark_read()

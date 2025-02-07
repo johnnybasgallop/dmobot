@@ -97,6 +97,29 @@ async def has_broker_message_been_sent(client, chat_id, user_id, message_id):
         return False
 
 
+async def has_first_vn_been_sent(client, chat_id, user_id, message_id):
+    try:
+        print(f"userid = {user_id}")
+        messages = await client.get_messages(chat_id, limit=100, max_id=message_id)
+
+        if not messages:
+            return False
+
+        for message in messages:
+            if message.sender_id != user_id:
+                if message.media and isinstance(message.media, MessageMediaDocument):
+                    document = message.media.document
+                    if document.mime_type == "audio/ogg" and document.size == 62571:
+                        return True
+
+        print("first vn has not been sent before")
+        return False
+
+    except Exception as e:
+        print(f"Error checking message history: {e}")
+        return False
+
+
 async def has_cmon_message_been_sent(client, chat_id, user_id, message_id):
     try:
         print(f"userid = {user_id}")
