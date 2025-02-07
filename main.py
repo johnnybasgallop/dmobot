@@ -85,9 +85,9 @@ async def my_event_handler(event):
             and not await has_first_vn_been_sent(client, chat_id, user_id, message_id)
         ):
             logger.info(f"Received first message {message_text} from @ userid:{user_id}")
-            await asyncio.sleep(2)
+            await asyncio.sleep(8)
             await event.mark_read()
-            await asyncio.sleep(2)
+            await asyncio.sleep(40)
             logger.info(f"Sending @ {user_id} the first voicenote")
             await client.send_file(
                 chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True
@@ -147,9 +147,9 @@ async def my_event_handler(event):
                 logger.info(
                     f"Received Likely Second Affirmation message: {message_text} following first VN from @ {user_id}"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(6)
                 await event.mark_read()
-                await asyncio.sleep(2)
+                await asyncio.sleep(35)
                 logger.info(f"Sending @ {user_id} the follow up text")
                 await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
                 logger.info(f"Sent @ {user_id} the follow up text")
@@ -162,9 +162,9 @@ async def my_event_handler(event):
                 logger.info(
                     f"Received likely confirmation: {message_text} after 2nd follow up message from @ {user_id}"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(9)
                 await event.mark_read()
-                await asyncio.sleep(2)
+                await asyncio.sleep(45)
                 logger.info(f"Sending @ {user_id} the broker message")
                 await client.send_message(chat_id, BROKER_MESSAGE)
                 logger.info(f"Sent @ {user_id} the broker message")
@@ -174,12 +174,12 @@ async def my_event_handler(event):
                     f"1 hour countdown to chaseup has been started for {sender.first_name} @ {user_id} | countdown will end when we receive proof of signup"
                 )
                 logger.info(f"Sending @ {user_id} the proof voicenote")
-                await asyncio.sleep(2)
+                await asyncio.sleep(8)
                 await client.send_file(
                     chat_id, file=CONFIRM_AFTER_FIRST_NOTE2, voice_note=True
                 )
                 logger.info(f"Sent @ {user_id} the proof voicenote")
-                await asyncio.sleep(2)
+                await asyncio.sleep(8)
                 logger.info(f"Sending @ {user_id} the proof image")
                 await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
                 logger.info(f"Sent @ {user_id} the proof image")
@@ -189,7 +189,7 @@ async def my_event_handler(event):
                 logger.info(
                     f"Received an image or video from @ {user_id} Assuming this is a confirmation"
                 )
-                await asyncio.sleep(2)
+                await asyncio.sleep(6)
                 if user_id in users_waiting_for_confirmation:
                     logger.info(f"Removing user @ {user_id} from followup list")
                     del users_waiting_for_confirmation[user_id]
@@ -197,7 +197,7 @@ async def my_event_handler(event):
                         f"User @ {user_id} Has been removed from the followup list"
                     )
 
-                await asyncio.sleep(2)
+                await asyncio.sleep(3)
                 return
 
         elif any(
