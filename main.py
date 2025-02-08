@@ -133,6 +133,7 @@ async def my_event_handler(event):
                 denial in message_text
                 for denial in ["11", "12", "13", "14", "15", "16", "17"]
             )
+            or await over_18_check(message_text)
         ):
 
             if (
