@@ -111,7 +111,7 @@ async def my_event_handler(event):
                 await asyncio.sleep(4)
                 await event.mark_read()
                 if FIRST_MESSAGE_VOICE_NOTE not in sent_messages_by_chat[chat_id]:
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(16)
                     logger.info(f"Sending @ {user_id} the first voicenote")
                     await client.send_file(
                         chat_id, file=FIRST_MESSAGE_VOICE_NOTE, voice_note=True
@@ -148,6 +148,7 @@ async def my_event_handler(event):
                         "ok",
                         "thats fine",
                         "sound",
+                        "want in",
                     ]
                 )
                 and not any(
@@ -158,6 +159,7 @@ async def my_event_handler(event):
                     denial in message_text
                     for denial in ["11", "12", "13", "14", "15", "16", "17"]
                 )
+                or await over_18_check(message_text=message_text)
             ):
 
                 if (
@@ -178,7 +180,7 @@ async def my_event_handler(event):
                         CONFIRM_AFTER_FIRST_NOTE_TEXT1
                         not in sent_messages_by_chat[chat_id]
                     ):
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(16)
                         logger.info(f"Sending @ {user_id} the follow up text")
                         await client.send_message(chat_id, CONFIRM_AFTER_FIRST_NOTE_TEXT1)
                         logger.info(f"Sent @ {user_id} the follow up text")
@@ -195,7 +197,7 @@ async def my_event_handler(event):
                     await asyncio.sleep(4)
                     await event.mark_read()
                     if BROKER_MESSAGE not in sent_messages_by_chat[chat_id]:
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(16)
                         logger.info(f"Sending @ {user_id} the broker message")
                         await client.send_message(chat_id, BROKER_MESSAGE)
                         logger.info(f"Sent @ {user_id} the broker message")
@@ -206,13 +208,13 @@ async def my_event_handler(event):
                             f"1 hour countdown to chaseup has been started for {sender.first_name} @ {user_id} | countdown will end when we receive proof of signup"
                         )
                         logger.info(f"Sending @ {user_id} the proof voicenote")
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(6)
                         await client.send_file(
                             chat_id, file=CONFIRM_AFTER_FIRST_NOTE2, voice_note=True
                         )
                         logger.info(f"Sent @ {user_id} the proof voicenote")
                         sent_messages_by_chat[chat_id].add(CONFIRM_AFTER_FIRST_NOTE2)
-                        await asyncio.sleep(4)
+                        await asyncio.sleep(6)
                         logger.info(f"Sending @ {user_id} the proof image")
                         await client.send_file(chat_id, file=CONFIRM_AFTER_FIRST_IMG)
                         logger.info(f"Sent @ {user_id} the proof image")

@@ -146,3 +146,16 @@ async def has_cmon_message_been_sent(client, chat_id, user_id, message_id):
     except Exception as e:
         logger.error(f"Error checking message history: {e}")
         return False
+
+
+async def over_18_check(message_text):
+    for word in message_text.split():  # Split the message into words
+        try:
+            num = int(word)  # Try to convert the word to an integer
+            if 18 <= num <= 55:
+                return True
+
+        except ValueError:
+            pass
+
+    return False
