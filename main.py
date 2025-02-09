@@ -82,6 +82,10 @@ async def my_event_handler(event):
 
     async with chat_lock:
         if await check_for_manual_intervention(client=client, chat_id=chat_id):
+            if user_id in users_waiting_for_confirmation:
+                logger.info(f"Removing user @ {user_id} from followup list")
+                del users_waiting_for_confirmation[user_id]
+                logger.info(f"User @ {user_id} Has been removed from the followup list")
             return
 
         if sender.bot or sender_phone == f"44{phone}":
