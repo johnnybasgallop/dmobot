@@ -24,33 +24,33 @@ from Utilities.ChaseupCheck import *
 from Utilities.Check import *
 
 # Get the Logtail Source Token from the environment variable
-# LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
+LOGTAIL_TOKEN = os.environ.get("LOGTAIL_TOKEN")
 
 # Configure the logger
 logger = logging.getLogger("telegram_bot")
 logger.setLevel(logging.INFO)  # Set the logger's level to DEBUG
 
-# # Configure Logtail handler to capture ERROR and above
-# if LOGTAIL_TOKEN:
-#     logtail_handler = LogtailHandler(
-#         source_token=LOGTAIL_TOKEN,
-#         host="https://in.logs.betterstack.com",
-#     )
-#     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-#     logtail_handler.setFormatter(formatter)
-#     logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
-#     logger.addHandler(logtail_handler)
+# Configure Logtail handler to capture ERROR and above
+if LOGTAIL_TOKEN:
+    logtail_handler = LogtailHandler(
+        source_token=LOGTAIL_TOKEN,
+        host="https://in.logs.betterstack.com",
+    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logtail_handler.setFormatter(formatter)
+    logtail_handler.setLevel(logging.ERROR)  # Set Logtail handler level to ERROR
+    logger.addHandler(logtail_handler)
 
-# # Configure StreamHandler to capture INFO and above
-# console_handler = logging.StreamHandler()
-# console_handler.setFormatter(
-#     logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-# )
-# console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
-# logger.addHandler(console_handler)
+# Configure StreamHandler to capture INFO and above
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
+console_handler.setLevel(logging.INFO)  # Set console handler level to INFO
+logger.addHandler(console_handler)
 
 
-client = TelegramClient(None, api_id, api_hash)
+client = TelegramClient(session_name, api_id, api_hash)
 
 sent_messages_by_chat = {}  # chat_id: set(messages)  Store sent messages *per chat*
 chat_locks = {}
@@ -261,4 +261,5 @@ async def main_function():
         await client.run_until_disconnected()
 
 
-asyncio.run(main_function())
+if __name__ == "__main__":
+    asyncio.run(main_function())
